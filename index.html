@@ -54,7 +54,27 @@
             box-shadow: 0 20px 80px rgba(0,0,0,0.3);
             max-width: 600px;
             width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
             animation: scaleIn 0.5s ease-out;
+        }
+        
+        .setup-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .setup-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+        }
+        
+        .setup-container::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 10px;
+        }
+        
+        .setup-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
         }
         
         .setup-container h1 {
@@ -695,7 +715,10 @@
             .card-front::before { font-size: 1.5rem; }
             .stats { gap: 10px; padding: 15px 20px; }
             .card-back .country-name { font-size: 0.5rem; padding: 2px 4px; }
-            .setup-container { padding: 30px 25px; }
+            .setup-container { 
+                padding: 30px 25px;
+                max-height: 85vh;
+            }
             .setup-container h1 { font-size: 2rem; }
             .count-btn { padding: 15px 25px; font-size: 1rem; }
             .difficulty-buttons { grid-template-columns: 1fr; gap: 15px; }
@@ -713,6 +736,14 @@
                 display: none;
             }
             .card-back .country-name { font-size: 0.45rem; }
+            .setup-container {
+                padding: 20px 15px;
+                width: 95%;
+                max-height: 90vh;
+            }
+            .setup-container h1 { font-size: 1.8rem; }
+            .setup-content h2 { font-size: 1.4rem; }
+            .setup-content h3 { font-size: 1.2rem; }
         }
     </style>
 </head>
