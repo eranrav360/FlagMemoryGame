@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>משחק זיכרון דגלים</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@700;900&family=Assistant:wght@400;600&display=swap');
+        
+        :root {
+            --primary: #FF6B35;
+            --secondary: #004E89;
+            --accent: #F7B801;
+            --dark: #1A1A2E;
+            --light: #F4F4F9;
+            --card-bg: #FFFFFF;
+            --shadow: rgba(0, 78, 137, 0.15);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Assistant', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .setup-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .setup-container {
+            background: white;
+            padding: 50px 60px;
+            border-radius: 30px;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            animation: scaleIn 0.5s ease-out;
+        }
+        
+        .setup-container h1 {
+            font-family: 'Heebo', sans-serif;
+            font-weight: 900;
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .setup-content h2 {
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.8rem;
+            color: var(--secondary);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .setup-content h3 {
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.4rem;
+            color: var(--secondary);
+            text-align: center;
+            margin: 30px 0 20px;
+        }
+        
+        .player-count-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .board-size-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .size-btn {
+            padding: 16px 28px;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent), #FFD140);
+            color: var(--dark);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(247, 184, 1, 0.3);
+        }
+        
+        .size-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(247, 184, 1, 0.4);
+        }
+        
+        .count-btn {
+            padding: 18px 35px;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary), #0066b3);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 78, 137, 0.3);
+        }
+        
+        .count-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 78, 137, 0.4);
+        }
+        
+        #playerInputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .player-input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .player-input-group label {
+            font-family: 'Heebo', sans-serif;
+            font-weight: 600;
+            color: var(--secondary);
+            min-width: 80px;
+        }
+        
+        .player-input-group input {
+            flex: 1;
+            padding: 12px 18px;
+            font-family: 'Assistant', sans-serif;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            transition: border-color 0.3s;
+        }
+        
+        .player-input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .start-game-btn {
+            width: 100%;
+            padding: 18px;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #FF8C61);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .start-game-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.5);
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: drift 60s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes drift {
+            to { transform: translate(-25%, -25%); }
+        }
+        
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .container::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .container::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+        
+        .container::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
+        }
+        
+        .container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: slideDown 0.6s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-family: 'Heebo', sans-serif;
+            font-weight: 900;
+            font-size: 3.5rem;
+            color: white;
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .stats {
+            background: rgba(255,255,255,0.95);
+            padding: 20px 30px;
+            border-radius: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            justify-items: center;
+            box-shadow: 0 10px 40px var(--shadow);
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            animation: slideUp 0.6s ease-out 0.2s backwards;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .player-stat {
+            padding: 10px 20px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        
+        .player-stat.active {
+            border-color: var(--accent);
+            background: rgba(247, 184, 1, 0.1);
+            transform: scale(1.05);
+        }
+        
+        .player-score {
+            color: var(--secondary);
+        }
+        
+        .player-stat.active .player-score {
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-family: 'Heebo', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--primary);
+        }
+        
+        .game-board {
+            display: grid;
+            gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: scaleIn 0.6s ease-out 0.4s backwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .card {
+            aspect-ratio: 1;
+            background: var(--card-bg);
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .card:hover:not(.flipped):not(.matched) {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+        }
+        
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .card.matched {
+            animation: matchPulse 0.6s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes matchPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15) rotate(5deg); }
+        }
+        
+        .card.wrong {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-5deg); }
+            75% { transform: translateX(10px) rotate(5deg); }
+        }
+        
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-front {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .card-front::before {
+            content: '❓';
+            font-size: 2.5rem;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+        
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            padding: 8px;
+            overflow: hidden;
+        }
+        
+        .card-back img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .card-back .country-name {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        
+        .reset-btn {
+            margin-top: 25px;
+            width: 100%;
+            padding: 18px;
+            font-family: 'Heebo', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), #FF8C61);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out 0.6s backwards;
+        }
+        
+        .reset-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.5);
+        }
+        
+        .reset-btn:active {
+            transform: translateY(0);
+        }
+        
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            padding: 50px 60px;
+            border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 20px 80px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        
+        .win-message.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .win-message h2 {
+            font-family: 'Heebo', sans-serif;
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .win-message p {
+            font-size: 1.3rem;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .firework {
+            position: fixed;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        
+        @keyframes firework-explosion {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--x), var(--y));
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .game-board { 
+                gap: 6px; 
+                padding: 10px;
+            }
+            .card-front::before { font-size: 1.5rem; }
+            .stats { gap: 10px; padding: 15px 20px; }
+            .card-back .country-name { font-size: 0.5rem; padding: 2px 4px; }
+            .setup-container { padding: 30px 25px; }
+            .setup-container h1 { font-size: 2rem; }
+            .count-btn { padding: 15px 25px; font-size: 1rem; }
+            .board-size-buttons { grid-template-columns: repeat(2, 1fr); }
+            .size-btn { padding: 14px 22px; font-size: 1rem; }
+        }
+        
+        @media (max-width: 480px) {
+            .game-board {
+                gap: 4px;
+                padding: 8px;
+            }
+            .card-back .country-name { display: none; }
+            .board-size-buttons { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-screen" id="setupScreen">
+        <div class="setup-container">
+            <h1>🏁 משחק זיכרון דגלים 🏁</h1>
+            <div class="setup-content">
+                <h2>בחר גודל לוח:</h2>
+                <div class="board-size-buttons">
+                    <button class="size-btn" onclick="setBoardSize(5)">5×5</button>
+                    <button class="size-btn" onclick="setBoardSize(6)">6×6</button>
+                    <button class="size-btn" onclick="setBoardSize(7)">7×7</button>
+                    <button class="size-btn" onclick="setBoardSize(8)">8×8</button>
+                    <button class="size-btn" onclick="setBoardSize(9)">9×9</button>
+                    <button class="size-btn" onclick="setBoardSize(10)">10×10</button>
+                </div>
+                
+                <div id="playerCountSection" style="display: none;">
+                    <h2>כמה שחקנים?</h2>
+                    <div class="player-count-buttons">
+                        <button class="count-btn" onclick="setPlayerCount(2)">2 שחקנים</button>
+                        <button class="count-btn" onclick="setPlayerCount(3)">3 שחקנים</button>
+                        <button class="count-btn" onclick="setPlayerCount(4)">4 שחקנים</button>
+                    </div>
+                </div>
+                
+                <div id="playerNamesSection" style="display: none;">
+                    <h3>הכניסו את שמות השחקנים:</h3>
+                    <div id="playerInputs"></div>
+                    <button class="start-game-btn" onclick="startGameWithPlayers()">התחל משחק!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container" id="gameContainer" style="display: none;">
+        <div class="header">
+            <h1>🏁 משחק זיכרון דגלים 🏁</h1>
+        </div>
+        
+        <div class="stats" id="stats"></div>
+        
+        <div class="game-board" id="gameBoard"></div>
+        
+        <button class="reset-btn" onclick="resetGame()">משחק חדש 🔄</button>
+    </div>
+    
+    <div class="overlay" id="overlay"></div>
+    <div class="win-message" id="winMessage">
+        <h2 id="winTitle">🎉 כל הכבוד! 🎉</h2>
+        <p id="winnerText"></p>
+        <p id="finalStats"></p>
+    </div>
+    
+    <script>
+        // 50 זוגות דגלים (100 קלפים) - קוד מדינה לתמונת דגל אמיתית
+        const flags = [
+            { code: 'il', name: 'ישראל' },
+            { code: 'us', name: 'ארה"ב' },
+            { code: 'gb', name: 'בריטניה' },
+            { code: 'fr', name: 'צרפת' },
+            { code: 'de', name: 'גרמניה' },
+            { code: 'it', name: 'איטליה' },
+            { code: 'es', name: 'ספרד' },
+            { code: 'pt', name: 'פורטוגל' },
+            { code: 'ru', name: 'רוסיה' },
+            { code: 'cn', name: 'סין' },
+            { code: 'jp', name: 'יפן' },
+            { code: 'kr', name: 'דרום קוריאה' },
+            { code: 'in', name: 'הודו' },
+            { code: 'br', name: 'ברזיל' },
+            { code: 'ar', name: 'ארגנטינה' },
+            { code: 'mx', name: 'מקסיקו' },
+            { code: 'ca', name: 'קנדה' },
+            { code: 'au', name: 'אוסטרליה' },
+            { code: 'nz', name: 'ניו זילנד' },
+            { code: 'za', name: 'דרום אפריקה' },
+            { code: 'eg', name: 'מצרים' },
+            { code: 'ng', name: 'ניגריה' },
+            { code: 'ke', name: 'קניה' },
+            { code: 'gh', name: 'גאנה' },
+            { code: 'se', name: 'שבדיה' },
+            { code: 'no', name: 'נורווגיה' },
+            { code: 'dk', name: 'דנמרק' },
+            { code: 'fi', name: 'פינלנד' },
+            { code: 'ch', name: 'שווייץ' },
+            { code: 'at', name: 'אוסטריה' },
+            { code: 'be', name: 'בלגיה' },
+            { code: 'nl', name: 'הולנד' },
+            { code: 'pl', name: 'פולין' },
+            { code: 'cz', name: 'צ׳כיה' },
+            { code: 'gr', name: 'יוון' },
+            { code: 'tr', name: 'טורקיה' },
+            { code: 'sa', name: 'סעודיה' },
+            { code: 'ae', name: 'איחוד האמירויות' },
+            { code: 'th', name: 'תאילנד' },
+            { code: 'sg', name: 'סינגפור' },
+            { code: 'my', name: 'מלזיה' },
+            { code: 'id', name: 'אינדונזיה' },
+            { code: 'ph', name: 'פיליפינים' },
+            { code: 'vn', name: 'וייטנאם' },
+            { code: 'cl', name: 'צ׳ילה' },
+            { code: 'co', name: 'קולומביה' },
+            { code: 'pe', name: 'פרו' },
+            { code: 'ie', name: 'אירלנד' },
+            { code: 'is', name: 'איסלנד' },
+            { code: 'ua', name: 'אוקראינה' }
+        ];
+        
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let currentPlayer = 0;
+        let players = [];
+        let canFlip = true;
+        let boardSize = 10;
+        let totalPairs = 50;
+        
+        // יצירת צלילים באמצעות Web Audio API
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSuccessSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+            oscillator.frequency.setValueAtTime(783.99, audioContext.currentTime + 0.2); // G5
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        function playFailSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function createFirework(x, y) {
+            const colors = ['#FF6B35', '#F7B801', '#FF1744', '#00E676', '#2979FF', '#E040FB'];
+            const particles = 30;
+            
+            for (let i = 0; i < particles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'firework';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (Math.PI * 2 * i) / particles;
+                const velocity = 100 + Math.random() * 100;
+                const xVel = Math.cos(angle) * velocity;
+                const yVel = Math.sin(angle) * velocity;
+                
+                particle.style.setProperty('--x', xVel + 'px');
+                particle.style.setProperty('--y', yVel + 'px');
+                particle.style.animation = 'firework-explosion 1s ease-out forwards';
+                
+                document.body.appendChild(particle);
+                
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+        
+        function launchFireworks() {
+            const interval = setInterval(() => {
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight * 0.6;
+                createFirework(x, y);
+            }, 200);
+            
+            setTimeout(() => clearInterval(interval), 3000);
+        }
+        
+        function setBoardSize(size) {
+            boardSize = size;
+            totalPairs = (size * size) / 2;
+            
+            // הצגת בחירת שחקנים
+            document.getElementById('playerCountSection').style.display = 'block';
+            
+            // גלילה חלקה לחלק הבא
+            document.getElementById('playerCountSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function setPlayerCount(count) {
+            const playerInputs = document.getElementById('playerInputs');
+            playerInputs.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const inputGroup = document.createElement('div');
+                inputGroup.className = 'player-input-group';
+                inputGroup.innerHTML = `
+                    <label>שחקן ${i}:</label>
+                    <input type="text" id="player${i}Name" placeholder="הכנס שם" value="שחקן ${i}" required>
+                `;
+                playerInputs.appendChild(inputGroup);
+            }
+            
+            document.getElementById('playerNamesSection').style.display = 'block';
+            
+            // גלילה חלקה לחלק הבא
+            setTimeout(() => {
+                document.getElementById('playerNamesSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+        
+        function startGameWithPlayers() {
+            players = [];
+            const inputs = document.querySelectorAll('#playerInputs input');
+            
+            inputs.forEach((input, index) => {
+                const name = input.value.trim() || `שחקן ${index + 1}`;
+                players.push({
+                    name: name,
+                    score: 0
+                });
+            });
+            
+            if (players.length < 2) {
+                alert('נדרשים לפחות 2 שחקנים!');
+                return;
+            }
+            
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            
+            initGame();
+        }
+        
+        function initGame() {
+            const gameBoard = document.getElementById('gameBoard');
+            const statsDiv = document.getElementById('stats');
+            
+            gameBoard.innerHTML = '';
+            statsDiv.innerHTML = '';
+            
+            // עדכון עמודות הלוח לפי גודל שנבחר
+            gameBoard.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+            
+            // יצירת תצוגת סטטיסטיקות דינמית לכל השחקנים
+            players.forEach((player, index) => {
+                const playerStat = document.createElement('div');
+                playerStat.className = 'stat player-stat';
+                playerStat.id = `player${index}Box`;
+                playerStat.innerHTML = `
+                    <div class="stat-label">${player.name}</div>
+                    <div class="stat-value player-score" id="player${index}Score">0</div>
+                `;
+                statsDiv.appendChild(playerStat);
+            });
+            
+            // הוספת תור נוכחי
+            const turnStat = document.createElement('div');
+            turnStat.className = 'stat';
+            turnStat.innerHTML = `
+                <div class="stat-label">תור</div>
+                <div class="stat-value" id="currentTurn">${players[0].name}</div>
+            `;
+            statsDiv.appendChild(turnStat);
+            
+            // בחירת דגלים בהתאם לגודל הלוח
+            const selectedFlags = flags.slice(0, totalPairs);
+            
+            // יצירת מערך של כל הדגלים פעמיים (זוגות)
+            cards = [...selectedFlags, ...selectedFlags]
+                .sort(() => Math.random() - 0.5)
+                .map((flag, index) => ({
+                    id: index,
+                    flag: flag,
+                    flipped: false,
+                    matched: false
+                }));
+            
+            // יצירת קלפים
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card';
+                cardElement.dataset.id = index;
+                cardElement.innerHTML = `
+                    <div class="card-front"></div>
+                    <div class="card-back">
+                        <img src="https://flagcdn.com/w160/${card.flag.code}.png" alt="${card.flag.name}">
+                        <div class="country-name">${card.flag.name}</div>
+                    </div>
+                `;
+                cardElement.addEventListener('click', () => flipCard(index));
+                gameBoard.appendChild(cardElement);
+                
+                // אנימציית כניסה מדורגת
+                setTimeout(() => {
+                    cardElement.style.animation = `scaleIn 0.4s ease-out ${index * 0.01}s backwards`;
+                }, 10);
+            });
+            
+            matchedPairs = 0;
+            currentPlayer = 0;
+            players.forEach(p => p.score = 0);
+            flippedCards = [];
+            
+            updateStats();
+        }
+        
+        function flipCard(index) {
+            if (!canFlip || cards[index].flipped || cards[index].matched || flippedCards.length >= 2) {
+                return;
+            }
+            
+            const cardElement = document.querySelector(`[data-id="${index}"]`);
+            cardElement.classList.add('flipped');
+            cards[index].flipped = true;
+            flippedCards.push(index);
+            
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+        
+        function checkMatch() {
+            canFlip = false;
+            const [firstIndex, secondIndex] = flippedCards;
+            const firstCard = cards[firstIndex];
+            const secondCard = cards[secondIndex];
+            
+            setTimeout(() => {
+                if (firstCard.flag.code === secondCard.flag.code) {
+                    // התאמה! השחקן הנוכחי מקבל נקודה
+                    playSuccessSound();
+                    
+                    firstCard.matched = true;
+                    secondCard.matched = true;
+                    document.querySelector(`[data-id="${firstIndex}"]`).classList.add('matched');
+                    document.querySelector(`[data-id="${secondIndex}"]`).classList.add('matched');
+                    matchedPairs++;
+                    
+                    players[currentPlayer].score++;
+                    
+                    updateStats();
+                    
+                    // השחקן ממשיך לשחק אם מצא התאמה
+                    if (matchedPairs === totalPairs) {
+                        setTimeout(showWinMessage, 500);
+                    }
+                } else {
+                    // לא התאמה - תור עובר לשחקן הבא
+                    playFailSound();
+                    
+                    const card1 = document.querySelector(`[data-id="${firstIndex}"]`);
+                    const card2 = document.querySelector(`[data-id="${secondIndex}"]`);
+                    card1.classList.add('wrong');
+                    card2.classList.add('wrong');
+                    
+                    setTimeout(() => {
+                        card1.classList.remove('flipped', 'wrong');
+                        card2.classList.remove('flipped', 'wrong');
+                        firstCard.flipped = false;
+                        secondCard.flipped = false;
+                        
+                        // החלף לשחקן הבא
+                        currentPlayer = (currentPlayer + 1) % players.length;
+                        updateStats();
+                    }, 600);
+                }
+                
+                flippedCards = [];
+                canFlip = true;
+            }, 800);
+        }
+        
+        function updateStats() {
+            players.forEach((player, index) => {
+                const scoreElement = document.getElementById(`player${index}Score`);
+                if (scoreElement) {
+                    scoreElement.textContent = player.score;
+                }
+                
+                const playerBox = document.getElementById(`player${index}Box`);
+                if (playerBox) {
+                    if (index === currentPlayer) {
+                        playerBox.classList.add('active');
+                    } else {
+                        playerBox.classList.remove('active');
+                    }
+                }
+            });
+            
+            const turnElement = document.getElementById('currentTurn');
+            if (turnElement) {
+                turnElement.textContent = players[currentPlayer].name;
+            }
+        }
+        
+        function showWinMessage() {
+            // השקת זיקוקים!
+            launchFireworks();
+            
+            // מציאת הציון הגבוה ביותר
+            const maxScore = Math.max(...players.map(p => p.score));
+            const winners = players.filter(p => p.score === maxScore);
+            
+            let winTitle = '';
+            let winnerText = '';
+            
+            if (winners.length === 1) {
+                winTitle = `🏆 ${winners[0].name} ניצח! 🏆`;
+            } else {
+                winTitle = '🤝 תיקו! 🤝';
+                winnerText = 'המנצחים: ' + winners.map(w => w.name).join(', ');
+            }
+            
+            // הצגת כל הניקוד
+            const scoreText = players
+                .sort((a, b) => b.score - a.score)
+                .map(p => `${p.name}: ${p.score} נקודות`)
+                .join(' | ');
+            
+            document.getElementById('winTitle').textContent = winTitle;
+            document.getElementById('winnerText').textContent = winnerText;
+            document.getElementById('finalStats').textContent = scoreText;
+            
+            document.getElementById('overlay').classList.add('show');
+            document.getElementById('winMessage').classList.add('show');
+        }
+        
+        function resetGame() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('winMessage').classList.remove('show');
+            document.getElementById('setupScreen').style.display = 'flex';
+            document.getElementById('gameContainer').style.display = 'none';
+        }
+        
+        // המשחק מתחיל רק אחרי בחירת שחקנים
+    </script>
+</body>
+</html>
